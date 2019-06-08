@@ -7,27 +7,29 @@ from sklearn.metrics import (
 from sklearn.model_selection import cross_val_score
 
 
-def classifier_score(kaggle):
-    y_proba = kaggle.model.predict_proba(kaggle.X_test)
+def classifier_score(mlcontext):
+    y_proba = mlcontext.model.predict_proba(mlcontext.X_test)
     y_proba = [v[1] for v in y_proba]
-    print("ROC AUC Score: ", roc_auc_score(kaggle.y_test, y_proba))
-    return kaggle
+    print("ROC AUC Score: ", roc_auc_score(mlcontext.y_test, y_proba))
+    return mlcontext
 
 
-def get_residuals(kaggle):
+def get_residuals(mlcontext):
     residuals = []
-    for truth, predict in zip(kaggle.y_test, kaggle.model.predict(kaggle.X_test)):
+    for truth, predict in zip(
+        mlcontext.y_test, mlcontext.model.predict(mlcontext.X_test)
+    ):
         residuals.append({"truth": truth, "predict": predict, "diff": truth - predict})
     return residuals
 
 
-def cross_validate(kaggle, scoring=None, cv=5):
+def cross_validate(mlcontext, scoring=None, cv=5):
     """Cross validate the model with some number of folds.
 
     https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html
 
     Args:
-        kaggle (Kaggle): Kaggle object populated with data for conducting cross-
+        mlcontext (MLContext): ML context populated with data for conducting cross-
             validation. Attributes used:
                 X: Train data
                 y: Target data
@@ -39,36 +41,38 @@ def cross_validate(kaggle, scoring=None, cv=5):
     Returns:
         scores (list of float): Cross-validation scores for each fold.
     """
-    scores = cross_val_score(kaggle.model, kaggle.X, kaggle.y, scoring=scoring, cv=cv)
+    scores = cross_val_score(
+        mlcontext.model, mlcontext.X, mlcontext.y, scoring=scoring, cv=cv
+    )
     print(f"Accuracy (95% conf. int.): {scores.mean():0.2f} (+/- {scores.std()*2})")
     return scores
 
 
-def classification_stats(kaggle, source="all"):
+def classification_stats(mlcontext, source="all"):
     """Get classification stats for a model.
 
     Args:
-        kaggle (Kaggle): Kaggle object to analyze. Attributes used:
+        mlcontext (MLContext): ML context to analyze. Attributes used:
             model: Model to check.
-        source (str): Determines which data to use from the Kaggle object. Options:
+        source (str): Determines which data to use from the ML context. Options:
             all: Uses attributes X and y
             train: Uses attributes X_train and y_train
             test: Uses attributes X_test and y_test
     Returns:
-        kaggle (Kaggle): Kaggle object after analysis.
+        mlcontext (MLContext): ML context after analysis.
     """
     if source == "all":
-        X, y = kaggle.X, kaggle.y
+        X, y = mlcontext.X, mlcontext.y
     elif source == "train":
-        X, y = kaggle.X_train, kaggle.y_train
+        X, y = mlcontext.X_train, mlcontext.y_train
     elif source == "test":
-        X, y = kaggle.X_test, kaggle.y_test
+        X, y = mlcontext.X_test, mlcontext.y_test
     else:
         print("Invalid source. Skipping analysis.")
-        return kaggle
+        return mlcontext
 
-    predicted = kaggle.model.predict(X)
-    probabilities = kaggle.model.predict_proba(X)
+    predicted = mlcontext.model.predict(X)
+    probabilities = mlcontext.model.predict_proba(X)
     classes = [int(v) for v in list(set(y))]
 
     # Get Accuracy and ROC AUC results for each class individually
@@ -99,4 +103,4 @@ def classification_stats(kaggle, source="all"):
     print("Classification Report")
     print(classification_report(y, predicted))
 
-    return kaggle
+    return mlcontext

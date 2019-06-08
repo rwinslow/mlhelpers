@@ -1,8 +1,8 @@
 from sklearn.ensemble import RandomForestClassifier
 
 
-def rfc_train(kaggle):
+def rfc_train(mlcontext):
     rfc = RandomForestClassifier()
-    rfc.fit(kaggle.X_train, kaggle.y_train)
-    kaggle.model = rfc
-    return kaggle
+    rfc.fit(mlcontext.X_train, mlcontext.y_train)
+    mlcontext.model = rfc
+    return mlcontext

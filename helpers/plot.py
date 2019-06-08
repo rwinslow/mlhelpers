@@ -7,7 +7,7 @@ import sklearn
 
 
 def plot_confusion_matrix(
-    kaggle,
+    mlcontext,
     classes=("Positive", "Negative"),
     normalize=False,
     title="Confusion matrix",
@@ -17,7 +17,7 @@ def plot_confusion_matrix(
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
-    estimator, X, y = kaggle.model, kaggle.X_test, kaggle.y_test
+    estimator, X, y = mlcontext.model, mlcontext.X_test, mlcontext.y_test
     cm = sklearn.metrics.confusion_matrix(y, estimator.predict(X))
 
     if normalize:
@@ -50,11 +50,11 @@ def plot_confusion_matrix(
     plt.xlabel("Predicted label")
     plt.tight_layout()
     plt.show()
-    return kaggle
+    return mlcontext
 
 
 def plot_learning_curve(
-    kaggle, ylim=None, cv=None, n_jobs=None, train_sizes=np.linspace(0.1, 1.0, 5)
+    mlcontext, ylim=None, cv=None, n_jobs=None, train_sizes=np.linspace(0.1, 1.0, 5)
 ):
     """
     Generate a simple plot of the test and training learning curve.
@@ -109,7 +109,7 @@ def plot_learning_curve(
         be big enough to contain at least one sample from each class.
         (default: np.linspace(0.1, 1.0, 5))
     """
-    estimator, X, y = kaggle.model, kaggle.X_train, kaggle.y_train
+    estimator, X, y = mlcontext.model, mlcontext.X_train, mlcontext.y_train
     plt.figure()
     if ylim is not None:
         plt.ylim(*ylim)
@@ -144,50 +144,50 @@ def plot_learning_curve(
     )
 
     plt.legend(loc="best")
-    return kaggle
+    return mlcontext
 
 
-def plot_residuals(kaggle):
+def plot_residuals(mlcontext):
     """Plot residuals for regressor.
 
     Args:
-        kaggle (Kaggle): Kaggle object to plot.
+        mlcontext (MLContext): ML context to plot.
     Returns:
-        kaggle (Kaggle): Kaggle object after plotting.
+        mlcontext (MLContext): ML context after plotting.
     """
     plt.scatter(
-        kaggle.model.predict(kaggle.X_train),
-        kaggle.model.predict(kaggle.X_train) - kaggle.y_train,
+        mlcontext.model.predict(mlcontext.X_train),
+        mlcontext.model.predict(mlcontext.X_train) - mlcontext.y_train,
         c="b",
         s=10,
         alpha=0.5,
         label="Train",
     )
     plt.scatter(
-        kaggle.model.predict(kaggle.X_test),
-        kaggle.model.predict(kaggle.X_test) - kaggle.y_test,
+        mlcontext.model.predict(mlcontext.X_test),
+        mlcontext.model.predict(mlcontext.X_test) - mlcontext.y_test,
         c="g",
         s=10,
         alpha=0.5,
         label="Test",
     )
 
-    plt.hlines(y=0, xmin=0, xmax=max(kaggle.model.predict(kaggle.X_test)))
+    plt.hlines(y=0, xmin=0, xmax=max(mlcontext.model.predict(mlcontext.X_test)))
     plt.title("Residuals Plot")
     plt.legend(loc="best")
-    return kaggle
+    return mlcontext
 
 
-def corrheatmap(kaggle):
+def corrheatmap(mlcontext):
     """Generate a correlation plot as heatmap.
 
     Args:
-        kaggle (Kaggle): Object to be analyzed.
+        mlcontext (MLContext): ML context to be analyzed.
     Returns:
-        kaggle (Kaggle): Object unchanged.
+        mlcontext (MLContext): ML context unchanged.
     """
     # Compute the correlation matrix
-    corr = kaggle.data.corr()
+    corr = mlcontext.data.corr()
 
     # Generate a mask for the upper triangle
     mask = np.zeros_like(corr, dtype=np.bool)
@@ -211,4 +211,4 @@ def corrheatmap(kaggle):
         cbar_kws={"shrink": 0.5},
     )
 
-    return kaggle
+    return mlcontext
